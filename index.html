@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1117">
+<title>Pencere Montaj – Kar/Zarar Takibi</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MontajPro">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --surface: #181c27;
+  --surface2: #1e2333;
+  --border: #2a3045;
+  --accent: #4f8eff;
+  --accent2: #00d4a8;
+  --danger: #ff4f6a;
+  --warn: #ffb347;
+  --text: #e8ecf4;
+  --text2: #8892aa;
+  --text3: #4a5470;
+  --green: #00d4a8;
+  --red: #ff4f6a;
+  --radius: 12px;
+  --mono: 'DM Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:14px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+
+/* ── HEADER ── */
+header{
+  background:linear-gradient(135deg,#0d1220 0%,#151c30 50%,#0d1220 100%);
+  border-bottom:1px solid var(--border);
+  padding:0 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:64px;position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(12px);
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{
+  width:36px;height:36px;background:var(--accent);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.logo-text{font-size:1.1rem;font-weight:800;letter-spacing:-0.5px}
+.logo-sub{font-size:.7rem;color:var(--text2);font-family:var(--mono);font-weight:400}
+.header-stats{display:flex;gap:24px}
+.hstat{text-align:right}
+.hstat-val{font-size:1.1rem;font-weight:700;font-family:var(--mono)}
+.hstat-lbl{font-size:.65rem;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.hstat-val.pos{color:var(--green)}
+.hstat-val.neg{color:var(--red)}
+
+/* ── NAV ── */
+nav{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;gap:4px;
+}
+.nav-btn{
+  padding:12px 20px;font-family:var(--sans);font-size:.85rem;font-weight:600;
+  color:var(--text2);background:none;border:none;cursor:pointer;
+  border-bottom:2px solid transparent;transition:.2s;
+  display:flex;align-items:center;gap:8px;
+}
+.nav-btn:hover{color:var(--text)}
+.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ── MAIN ── */
+main{padding:32px;max-width:1400px;margin:0 auto}
+.page{display:none}
+.page.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.card-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text2);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'';display:block;width:3px;height:14px;background:var(--accent);border-radius:2px}
+
+/* ── GRID ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+
+/* ── STAT BOXES ── */
+.stat-box{
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:20px;position:relative;overflow:hidden;
+}
+.stat-box::after{
+  content:'';position:absolute;top:0;right:0;width:60px;height:60px;
+  background:var(--accent);opacity:.05;border-radius:0 10px 0 60px;
+}
+.stat-val{font-size:1.6rem;font-weight:800;font-family:var(--mono);line-height:1}
+.stat-lbl{font-size:.65rem;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+.stat-val.green{color:var(--green)}
+.stat-val.red{color:var(--red)}
+.stat-val.blue{color:var(--accent)}
+
+/* ── FORM INPUTS ── */
+.form-row{display:grid;gap:12px;margin-bottom:12px}
+.form-row.cols-2{grid-template-columns:1fr 1fr}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-row.cols-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2)}
+.form-group input,.form-group select{
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:var(--mono);font-size:16px;
+  padding:10px 12px;transition:.2s;outline:none;width:100%;
+  -webkit-appearance:none;appearance:none;
+}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,255,.12)}
+.form-group input[type=number]{-moz-appearance:textfield}
+.form-group input[type=number]::-webkit-outer-spin-button,
+.form-group input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+
+/* ── BUTTONS ── */
+.btn{
+  padding:10px 20px;border-radius:8px;font-family:var(--sans);font-size:.85rem;
+  font-weight:700;cursor:pointer;border:none;transition:.2s;display:inline-flex;
+  align-items:center;gap:8px;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#3a78ff;transform:translateY(-1px)}
+.btn-success{background:var(--green);color:#0f1117}
+.btn-success:hover{filter:brightness(1.1)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{filter:brightness(1.1)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--text3)}
+.btn-sm{padding:6px 12px;font-size:.78rem}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+thead th{
+  background:var(--surface2);padding:12px 14px;text-align:left;
+  font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--text2);white-space:nowrap;border-bottom:1px solid var(--border);
+}
+tbody td{
+  padding:12px 14px;border-bottom:1px solid rgba(42,48,69,.5);
+  font-family:var(--mono);font-size:.85rem;
+}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+.tbl-num{text-align:right}
+.badge{
+  display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;
+  font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+}
+.badge-green{background:rgba(0,212,168,.15);color:var(--green)}
+.badge-red{background:rgba(255,79,106,.15);color:var(--red)}
+.badge-yellow{background:rgba(255,179,71,.15);color:var(--warn)}
+
+/* ── PENCERE ÖLÇÜ TABLE ── */
+.olcu-table{width:100%;border-collapse:collapse}
+.olcu-table th{
+  background:var(--surface2);padding:8px 10px;font-size:.62rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;color:var(--text2);text-align:center;
+  border:1px solid var(--border);
+}
+.olcu-table td{border:1px solid rgba(42,48,69,.4);padding:4px 6px}
+.olcu-table td:first-child{
+  text-align:center;font-family:var(--mono);font-size:.75rem;
+  color:var(--text3);background:var(--surface2);font-weight:700;width:36px;
+}
+.olcu-table input{
+  background:transparent;border:none;color:var(--text);font-family:var(--mono);
+  font-size:16px;padding:4px 6px;width:100%;outline:none;text-align:right;
+  -webkit-appearance:none;appearance:none;
+}
+.olcu-table input:focus{background:rgba(79,142,255,.08);border-radius:4px}
+.olcu-table .auto-cell{
+  text-align:right;font-family:var(--mono);font-size:.82rem;
+  color:var(--accent2);background:rgba(0,212,168,.04);padding:0 10px;
+}
+.olcu-total-row td{background:var(--surface2);font-weight:700;color:var(--accent2)}
+
+/* ── RESULT PANEL ── */
+.result-panel{
+  background:linear-gradient(135deg,rgba(79,142,255,.08),rgba(0,212,168,.05));
+  border:1px solid rgba(79,142,255,.2);border-radius:var(--radius);padding:24px;
+}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.result-row:last-child{border-bottom:none;padding-top:16px}
+.result-row.total{margin-top:8px}
+.result-lbl{font-size:.82rem;color:var(--text2)}
+.result-val{font-family:var(--mono);font-size:.95rem;font-weight:500}
+.result-big{font-size:1.4rem;font-weight:800}
+
+/* ── MALZEME ── */
+.malzeme-row{
+  display:grid;grid-template-columns:2fr 1.2fr 1.2fr 1.2fr 1.2fr 1fr;
+  gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(42,48,69,.5);
+}
+.malzeme-row.header{
+  font-size:.62rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;color:var(--text2);padding-bottom:10px;
+}
+.malzeme-name{font-weight:600;font-size:.88rem}
+.malzeme-calc{font-family:var(--mono);font-size:.82rem;color:var(--accent2)}
+
+/* ── AYLIK CHART ── */
+.month-bar-wrap{display:flex;flex-direction:column;gap:8px}
+.month-bar-row{display:grid;grid-template-columns:80px 1fr 100px;gap:12px;align-items:center}
+.month-name{font-size:.78rem;color:var(--text2)}
+.month-bar-bg{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.month-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.6s}
+.month-val{font-family:var(--mono);font-size:.78rem;text-align:right}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:32px;width:min(700px,95vw);max-height:90vh;overflow-y:auto;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-size:1.2rem;font-weight:800;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:1.2rem;padding:4px}
+.modal-close:hover{color:var(--text)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:300;
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:14px 20px;font-size:.85rem;display:flex;align-items:center;gap:10px;
+  transform:translateY(80px);opacity:0;transition:.3s;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.error{border-color:var(--red);color:var(--red)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:3rem;margin-bottom:12px;opacity:.5}
+.empty-text{font-size:.9rem}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ── SEPARATOR ── */
+.sep{border:none;border-top:1px solid var(--border);margin:20px 0}
+.section-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text3);margin-bottom:12px}
+
+/* ══════════════════════════════════════════
+   MOBİL UYUMLULUK
+══════════════════════════════════════════ */
+
+/* Alt navigasyon - mobilde sabit */
+@media (max-width: 768px) {
+
+  /* Header küçült */
+  header {
+    padding: 0 16px;
+    height: 56px;
+  }
+  .logo-text { font-size: .95rem; }
+  .header-stats { gap: 12px; }
+  .hstat-val { font-size: .9rem; }
+  .hstat-lbl { font-size: .55rem; }
+
+  /* Nav → altta sabit tab bar */
+  nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    top: auto;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    border-top: 1px solid var(--border);
+    border-bottom: none;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,.4);
+  }
+  .nav-btn {
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 4px;
+    font-size: .55rem;
+    letter-spacing: 0;
+    border-bottom: none;
+    border-top: 2px solid transparent;
+    line-height: 1.2;
+    text-align: center;
+    justify-content: center;
+  }
+  .nav-btn.active {
+    border-top-color: var(--accent);
+    border-bottom-color: transparent;
+    background: rgba(79,142,255,.08);
+  }
+  /* Nav ikonları büyüt, yazıları küçült */
+  .nav-btn .nav-icon { font-size: 1.3rem; display: block; }
+
+  /* Main içerik - alttan boşluk (tab bar için) */
+  main {
+    padding: 16px;
+    padding-bottom: 80px;
+  }
+
+  /* Grid'leri tek sütuna indir */
+  .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Form row'ları */
+  .form-row.cols-2,
+  .form-row.cols-3,
+  .form-row.cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Kartlar */
+  .card { padding: 16px; }
+
+  /* Stat kutuları - 2 sütun */
+  #page-dashboard .grid-4,
+  #page-aylik .grid-4 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Tablo - yatay kaydır */
+  .tbl-wrap { border-radius: 8px; }
+  table { font-size: .78rem; }
+  thead th { padding: 8px 10px; font-size: .58rem; }
+  tbody td { padding: 8px 10px; }
+
+  /* Ölçü tablosu mobil */
+  .olcu-table th { font-size: .58rem; padding: 6px 4px; }
+  .olcu-table td { padding: 2px 2px; }
+  .olcu-table input { font-size: 16px; padding: 6px 4px; min-width: 52px; }
+  .olcu-table .auto-cell { padding: 0 4px; font-size: .75rem; min-width: 44px; }
+
+  /* Hesap sayfası - tek sütun */
+  #page-hesap > .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Butonlar */
+  .btn { padding: 12px 16px; font-size: .88rem; }
+  .btn-sm { padding: 8px 12px; font-size: .8rem; }
+
+  /* Modal tam ekran */
+  .modal {
+    width: 100vw !important;
+    max-height: 90vh;
+    border-radius: 16px 16px 0 0;
+    position: fixed;
+    bottom: 0;
+    margin: 0;
+  }
+  .modal-overlay {
+    align-items: flex-end !important;
+  }
+
+  /* Malzeme listesi mobil */
+  .malzeme-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px;
+  }
+  .malzeme-row.header { display: none; }
+  .malzeme-row > *:nth-child(5) { grid-column: 1; }
+  .malzeme-row > *:nth-child(6) { grid-column: 2; justify-self: end; }
+
+  /* Sonuç paneli - mobilde daha kompakt */
+  .result-panel { padding: 16px; }
+  .result-row { padding: 8px 0; }
+  .result-big { font-size: 1.2rem; }
+
+  /* Toast alt navdan yukarı */
+  .toast { bottom: 140px; right: 16px; left: 16px; }
+
+  /* Header stats - 2 item göster */
+  .header-stats .hstat:nth-child(3),
+  .header-stats .hstat:nth-child(4) { display: none; }
+}
+
+/* Çok küçük ekranlar */
+@media (max-width: 380px) {
+  .header-stats .hstat:nth-child(2) { display: none; }
+  nav { grid-template-columns: repeat(6, 1fr); }
+  .nav-btn { font-size: .48rem; padding: 6px 2px; }
+}
+
+/* Dokunmatik iyileştirmeleri */
+@media (hover: none) {
+  .btn:hover { transform: none; }
+  .btn:active { opacity: .8; transform: scale(.97); }
+  tbody tr:hover { background: transparent; }
+  tbody tr:active { background: rgba(255,255,255,.03); }
+}
+
+/* Güvenli alan (iPhone notch) */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  nav { padding-bottom: env(safe-area-inset-bottom); }
+  main { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🪟</div>
+    <div>
+      <div class="logo-text">MontajPro</div>
+      <div class="logo-sub">Pencere Montaj Kar/Zarar</div>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="hstat">
+      <div class="hstat-val blue" id="h-proje">0</div>
+      <div class="hstat-lbl">Proje</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" id="h-ciro">€0</div>
+      <div class="hstat-lbl">Toplam Ciro</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val pos" id="h-kar">€0</div>
+      <div class="hstat-lbl">Net Kar</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" id="h-oran">0%</div>
+      <div class="hstat-lbl">Kar Oranı</div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="nav-icon">📊</span>Dashboard</button>
+  <button class="nav-btn" onclick="showPage('projeler')" id="nav-projeler"><span class="nav-icon">📋</span>Projeler</button>
+  <button class="nav-btn" onclick="showPage('hesap')" id="nav-hesap"><span class="nav-icon">🧮</span>Hesap</button>
+  <button class="nav-btn" onclick="showPage('malzeme')" id="nav-malzeme"><span class="nav-icon">🧱</span>Malzeme</button>
+  <button class="nav-btn" onclick="showPage('aylik')" id="nav-aylik"><span class="nav-icon">📅</span>Aylık</button>
+  <button class="nav-btn" onclick="showPage('ayarlar')" id="nav-ayarlar"><span class="nav-icon">⚙️</span>Ayarlar</button>
+</nav>
+
+<main>
+
+<!-- ════════════════ DASHBOARD ════════════════ -->
+<div class="page active" id="page-dashboard">
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="stat-box">
+      <div class="stat-val blue" id="d-proje">0</div>
+      <div class="stat-lbl">Toplam Proje</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="d-ciro">€0</div>
+      <div class="stat-lbl">Toplam Ciro</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val green" id="d-kar">€0</div>
+      <div class="stat-lbl">Net Kar</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="d-oran">0%</div>
+      <div class="stat-lbl">Ortalama Kar Oranı</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Son Projeler</div>
+      <div id="d-son-projeler"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Henüz proje yok</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Aylık Kar Trendi</div>
+      <div class="month-bar-wrap" id="d-trend"></div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="stat-box">
+      <div class="stat-val blue" id="d-m2">0</div>
+      <div class="stat-lbl">Toplam m²</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="d-karm2">€0</div>
+      <div class="stat-lbl">Ort. Kar / m²</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="d-karpencere">€0</div>
+      <div class="stat-lbl">Ortalama €/Pencere</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ PROJELER ════════════════ -->
+<div class="page" id="page-projeler">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <div style="font-size:1.1rem;font-weight:800">Tüm Projeler</div>
+    <button class="btn btn-primary" onclick="showPage('hesap')">＋ Yeni Proje</button>
+  </div>
+  <div class="tbl-wrap" style="-webkit-overflow-scrolling:touch">
+    <table id="proje-table" style="min-width:700px">
+      <thead>
+        <tr>
+          <th>Proje No</th>
+          <th>Müşteri / Lokasyon</th>
+          <th>Şehir</th>
+          <th>Tarih</th>
+          <th>Süre</th><th>Pencere</th>
+          <th>Toplam m²</th>
+          <th class="tbl-num">Fiyat</th>
+          <th class="tbl-num">Net Kar</th>
+          <th class="tbl-num">Kar %</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="proje-tbody">
+        <tr><td colspan="10"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Henüz proje kaydedilmedi</div></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════ HESAP & KAYDET ════════════════ -->
+<div class="page" id="page-hesap">
+  <div class="grid-2" style="gap:20px;align-items:start">
+
+    <!-- SOL: GİRİŞ -->
+    <div style="order:1">
+    <div>
+      <div class="card">
+        <div class="card-title">Proje Bilgileri</div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Proje No</label><input type="text" id="h-proje-no" placeholder="P-001"></div>
+          <div class="form-group"><label>Başlangıç Tarihi</label><input type="date" id="h-tarih-bas"></div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Bitiş Tarihi</label><input type="date" id="h-tarih-bit"></div>
+          <div class="form-group"><label>Toplam Çalışma Saati</label><input type="number" id="h-saat" placeholder="8" step="0.5" inputmode="decimal" onchange="hesapla()" onblur="hesapla()">
+            <span style="font-size:.72rem;color:var(--text3)" id="h-gun-info">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Müşteri / Lokasyon</label><input type="text" id="h-musteri" placeholder="Ad Soyad / Adres"></div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Şehir</label><input type="text" id="h-sehir" placeholder="Amsterdam"></div>
+          <div class="form-group"><label>Pencere Başı Fiyat (€)</label><input type="number" id="h-birim-fiyat" placeholder="500" step="1" value="500" inputmode="decimal" onchange="hesapla()" onblur="hesapla()"></div>
+          <div class="form-group"><label>Toplam Fiyat (otomatik)</label><input type="text" id="h-fiyat-goster" readonly style="color:var(--accent2);background:rgba(0,212,168,.06);cursor:default"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Pencere Ölçüleri (Max 25)</div>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table class="olcu-table" style="min-width:520px">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Genişlik (cm)</th>
+              <th>Yükseklik (cm)</th>
+              <th>Adet</th>
+              <th>m² (tek)</th>
+              <th>Toplam m²</th>
+              <th>Açıklama</th>
+            </tr>
+          </thead>
+          <tbody id="olcu-tbody"></tbody>
+          <tfoot>
+            <tr class="olcu-total-row">
+              <td colspan="3" style="text-align:right;padding:8px 10px;font-size:.75rem;color:var(--text2)">TOPLAM</td>
+              <td class="auto-cell" id="tot-adet">0</td>
+              <td></td>
+              <td class="auto-cell" id="tot-m2">0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ekstra Maliyetler</div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Şehre Mesafe (km, tek yön)</label><input type="number" id="h-km" value="50" inputmode="decimal" onchange="hesapla()" onblur="hesapla()"></div>
+          <div class="form-group"><label>Ekip Kişi Sayısı</label><input type="number" id="h-ekip" value="4" inputmode="numeric" onchange="hesapla()" onblur="hesapla()"><span style="font-size:.72rem;color:var(--text3)">İşçilik = kişi × saat × ücret</span></div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Saat Başı Ücret (€)</label><input type="number" id="h-saat-ucret" value="22.50" step="0.5" inputmode="decimal" onchange="hesapla()" onblur="hesapla()"></div>
+          <div class="form-group"><label>Plint / Afwerking (m)</label><input type="number" id="h-plint" value="0" inputmode="decimal" onchange="hesapla()" onblur="hesapla()"></div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Kiralık Ekipman / İskele (€)</label><input type="number" id="h-kira" value="0" step="0.01" inputmode="decimal" onchange="hesapla()" onblur="hesapla()"></div>
+          <div class="form-group"><label>Afwerking / Ekstra (€)</label><input type="number" id="h-ekstra" value="0" step="0.01" inputmode="decimal" onchange="hesapla()" onblur="hesapla()"></div>
+        </div>
+      </div>
+    </div>
+
+    </div>
+    <!-- SAĞ: SONUÇ -->
+    <div style="order:2">
+    <div>
+      <div class="card result-panel">
+        <div class="card-title">Hesap Sonucu</div>
+
+        <div class="section-label">Maliyetler</div>
+        <div class="result-row">
+          <span class="result-lbl">İşçilik <span style="color:var(--text3);font-size:.7rem" id="r-iscil-detay"></span></span>
+          <span class="result-val" id="r-iscil">€0.00</span>
+        </div>
+        <div class="result-row"><span class="result-lbl">Seyahat</span><span class="result-val" id="r-seyahat">€0.00</span></div>
+        <div class="result-row"><span class="result-lbl">Standart Malzeme</span><span class="result-val" id="r-malzeme">€0.00</span></div>
+        <div class="result-row"><span class="result-lbl">Plint/Afwerking</span><span class="result-val" id="r-plint">€0.00</span></div>
+        <div class="result-row"><span class="result-lbl">Kiralık Ekipman</span><span class="result-val" id="r-kira">€0.00</span></div>
+        <div class="result-row"><span class="result-lbl">Ekstra</span><span class="result-val" id="r-ekstra">€0.00</span></div>
+        <div class="result-row"><span class="result-lbl">Genel Gider Payı</span><span class="result-val" id="r-genel">€0.00</span></div>
+
+        <hr class="sep">
+        <div class="result-row"><span class="result-lbl">Toplam Maliyet</span><span class="result-val" id="r-top-maliyet">€0.00</span></div>
+        <div class="result-row"><span class="result-lbl">Toplam Fiyat <span style="color:var(--text3);font-size:.72rem">(pencere × birim)</span></span><span class="result-val" id="r-fiyat">€0.00</span></div>
+
+        <hr class="sep">
+        <div class="result-row total">
+          <span style="font-weight:700;font-size:1rem">NET KAR</span>
+          <span class="result-val result-big" id="r-kar">€0.00</span>
+        </div>
+        <div class="result-row">
+          <span class="result-lbl">Kar Oranı</span>
+          <span class="result-val" id="r-oran">0%</span>
+        </div>
+        <div class="result-row">
+          <span class="result-lbl">€ / m²</span>
+          <span class="result-val" id="r-m2kar">€0.00</span>
+        </div>
+        <div class="result-row">
+          <span class="result-lbl">€ / Pencere</span>
+          <span class="result-val" id="r-pkar">€0.00</span>
+        </div>
+
+        <div style="margin-top:24px;display:flex;gap:12px">
+          <button class="btn btn-success" style="flex:1;justify-content:center" onclick="kaydet()">💾 Projeyi Kaydet</button>
+          <button class="btn btn-ghost" onclick="sifirla()">Temizle</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Malzeme Dökümü</div>
+        <div id="r-malzeme-detay" style="font-size:.82rem;color:var(--text2)">Pencere adedi girildiğinde hesaplanır.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MALZEME FİYATLARI ════════════════ -->
+<div class="page" id="page-malzeme">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <div style="font-size:1.1rem;font-weight:800">Malzeme Fiyat Listesi</div>
+    <button class="btn btn-primary btn-sm" onclick="malzemeEkle()">＋ Malzeme Ekle</button>
+  </div>
+  <div class="card">
+    <div class="malzeme-row header">
+      <span>Malzeme</span><span>Birim</span><span>Birim Fiyat (€)</span>
+      <span>Pencere Başına Kullanım</span><span>Pencere Başına (€)</span><span></span>
+    </div>
+    <div id="malzeme-list"></div>
+    <hr class="sep">
+    <div class="malzeme-row" style="font-weight:700">
+      <span>TOPLAM STANDART MALZEMELİ MALİYET</span>
+      <span></span><span></span><span></span>
+      <span class="malzeme-calc" id="malzeme-toplam" style="font-size:1rem">€0.00</span>
+      <span></span>
+    </div>
+    <div style="margin-top:12px;font-size:.72rem;color:var(--text3)">
+      * Plint/Afwerking metraj bazlı hesaplanır, bu toplamın dışındadır.
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════ AYARLAR ════════════════ -->
+<div class="page" id="page-ayarlar">
+  <div style="font-size:1.1rem;font-weight:800;margin-bottom:20px">⚙️ Gider Ayarları</div>
+
+  <div class="grid-2" style="gap:20px;align-items:start">
+    <div>
+
+      <div class="card">
+        <div class="card-title">🚗 Seyahat</div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Km Başı Yakıt / Amortisman (€/km)</label>
+          <input type="number" id="ay-kmFiyat" step="0.01" inputmode="decimal"
+            onchange="saveAyar('kmFiyat',this.value)" onblur="saveAyar('kmFiyat',this.value)">
+          <span style="font-size:.72rem;color:var(--text3)">Hollanda standart: €0.35/km</span>
+        </div>
+        <div class="form-group">
+          <label>Ortalama Otoban Tol (€/proje gidiş-dönüş)</label>
+          <input type="number" id="ay-tolOrt" step="0.5" inputmode="decimal"
+            onchange="saveAyar('tolOrt',this.value)" onblur="saveAyar('tolOrt',this.value)">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🚐 Araç Giderleri (Aylık)</div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Araç Lease / Kira (€/ay)</label>
+          <input type="number" id="ay-aracLeaseAylik" step="10" inputmode="decimal"
+            onchange="saveAyar('aracLeaseAylik',this.value)" onblur="saveAyar('aracLeaseAylik',this.value)">
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Araç Bakım & Tamir (€/ay)</label>
+          <input type="number" id="ay-aracBakimAylik" step="5" inputmode="decimal"
+            onchange="saveAyar('aracBakimAylik',this.value)" onblur="saveAyar('aracBakimAylik',this.value)">
+        </div>
+        <div class="form-group">
+          <label>Araç Yıkama / Temizlik (€/ay)</label>
+          <input type="number" id="ay-aracYikama" step="5" inputmode="decimal"
+            onchange="saveAyar('aracYikama',this.value)" onblur="saveAyar('aracYikama',this.value)">
+        </div>
+      </div>
+
+    </div>
+    <div>
+
+      <div class="card">
+        <div class="card-title">🛡️ Sigorta (Aylık)</div>
+        <div class="form-group">
+          <label>Bedrijfsaansprakelijkheid / Sigorta (€/ay)</label>
+          <input type="number" id="ay-sigortaAylik" step="10" inputmode="decimal"
+            onchange="saveAyar('sigortaAylik',this.value)" onblur="saveAyar('sigortaAylik',this.value)">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📱 İdari Giderler (Aylık)</div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Telefon & İnternet (€/ay)</label>
+          <input type="number" id="ay-telefonAylik" step="5" inputmode="decimal"
+            onchange="saveAyar('telefonAylik',this.value)" onblur="saveAyar('telefonAylik',this.value)">
+        </div>
+        <div class="form-group">
+          <label>Diğer İdari Giderler (€/ay)</label>
+          <input type="number" id="ay-idariDiger" step="5" inputmode="decimal"
+            onchange="saveAyar('idariDiger',this.value)" onblur="saveAyar('idariDiger',this.value)">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 Proje Dağıtımı</div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Aylık Ortalama Proje Sayısı</label>
+          <input type="number" id="ay-aylikProje" step="1" min="1" inputmode="numeric"
+            onchange="saveAyar('aylikProje',this.value)" onblur="saveAyar('aylikProje',this.value)">
+          <span style="font-size:.72rem;color:var(--text3)">Tüm aylık sabit giderler bu sayıya bölünerek her projeye dağıtılır</span>
+        </div>
+      </div>
+
+      <!-- ÖZET -->
+      <div class="card" style="background:linear-gradient(135deg,rgba(79,142,255,.08),rgba(0,212,168,.05));border-color:rgba(79,142,255,.2)">
+        <div class="card-title">💶 Aylık Sabit Gider Özeti</div>
+        <div id="ayar-ozet" style="display:flex;flex-direction:column;gap:8px;font-size:.85rem"></div>
+        <hr class="sep">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:700">Toplam Aylık Sabit Gider</span>
+          <span style="font-family:var(--mono);font-size:1.1rem;font-weight:800;color:var(--accent2)" id="ayar-toplam">€0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px">
+          <span style="color:var(--text2);font-size:.82rem">Proje Başına Düşen</span>
+          <span style="font-family:var(--mono);color:var(--accent)" id="ayar-proje-basi">€0</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ AYLIK ÖZET ════════════════ -->
+<div class="page" id="page-aylik">
+  <div style="font-size:1.1rem;font-weight:800;margin-bottom:20px">Aylık Özet</div>
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="stat-box"><div class="stat-val blue" id="ay-proje">0</div><div class="stat-lbl">Bu Yıl Proje</div></div>
+    <div class="stat-box"><div class="stat-val" id="ay-ciro">€0</div><div class="stat-lbl">Yıllık Ciro</div></div>
+    <div class="stat-box"><div class="stat-val green" id="ay-kar">€0</div><div class="stat-lbl">Yıllık Kar</div></div>
+    <div class="stat-box"><div class="stat-val" id="ay-oran">0%</div><div class="stat-lbl">Yıllık Kar Oranı</div></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Ay</th>
+          <th class="tbl-num">Proje Sayısı</th>
+          <th class="tbl-num">Ciro (€)</th>
+          <th class="tbl-num">Maliyet (€)</th>
+          <th class="tbl-num">Net Kar (€)</th>
+          <th class="tbl-num">Kar %</th>
+          <th class="tbl-num">Toplam m²</th>
+          <th class="tbl-num">€/m²</th>
+        </tr>
+      </thead>
+      <tbody id="aylik-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<!-- MODAL: Proje Detay -->
+<div class="modal-overlay" id="detay-modal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="detay-title">Proje Detayı</span>
+      <button class="modal-close" onclick="closeModal('detay-modal')">✕</button>
+    </div>
+    <div id="detay-content"></div>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn btn-danger btn-sm" id="detay-sil-btn">🗑 Sil</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('detay-modal')">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let state = {
+  projeler: [],
+  malzemeler: [
+    {id:1, ad:'Vida',           birim:'kutu (200 ad.)', fiyat:8.50,  kullanim:0.25},
+    {id:2, ad:'Kopribant',      birim:'m',              fiyat:1.20,  kullanim:2.50},
+    {id:3, ad:'Köpük',          birim:'adet (750ml)',   fiyat:6.90,  kullanim:0.50},
+    {id:4, ad:'High Tack Kit',  birim:'adet',           fiyat:12.50, kullanim:0.50},
+    {id:5, ad:'Silikon',        birim:'tüp (300ml)',    fiyat:4.50,  kullanim:0.75},
+    {id:6, ad:'Plint/Afwerking',birim:'m',              fiyat:3.20,  kullanim:0,    plint:true},
+  ],
+  varsayimlar: {
+    kmFiyat: 0.35,
+    tolOrt: 12,
+    sigortaAylik: 150,
+    aracLeaseAylik: 0,
+    aracBakimAylik: 80,
+    aracYikama: 20,
+    telefonAylik: 60,
+    idariDiger: 50,
+    aylikProje: 8,
+  },
+  nextProjeId: 1,
+};
+
+function saveState(){ localStorage.setItem('montajpro', JSON.stringify(state)) }
+function loadState(){
+  try {
+    const s = localStorage.getItem('montajpro');
+    if(s){ state = JSON.parse(s); }
+  } catch(e){}
+}
+
+// ══════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
+  if(id==='projeler') renderProjeler();
+  if(id==='malzeme') renderMalzeme();
+  if(id==='aylik') renderAylik();
+  if(id==='ayarlar') renderAyarlar();
+  if(id==='dashboard') renderDashboard();
+  if(id==='hesap') { initOlcuTable(); hesapla(); }
+}
+
+// ══════════════════════════════════════════════
+// ÖLÇÜ TABLOSU
+// ══════════════════════════════════════════════
+function initOlcuTable(){
+  const tbody = document.getElementById('olcu-tbody');
+  if(tbody.children.length > 0) return;
+  tbody.innerHTML = '';
+  for(let i=1;i<=25;i++){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i}</td>
+      <td><input type="number" placeholder="—" class="o-gen" data-row="${i}" onchange="olcuHesapla()" onblur="olcuHesapla()" inputmode="decimal"></td>
+      <td><input type="number" placeholder="—" class="o-yuk" data-row="${i}" onchange="olcuHesapla()" onblur="olcuHesapla()" inputmode="decimal"></td>
+      <td><input type="number" value="1" min="1" class="o-adet" inputmode="numeric" data-row="${i}" onchange="olcuHesapla()" onblur="olcuHesapla()" inputmode="decimal"></td>
+      <td class="auto-cell o-m2tek" id="m2tek-${i}">—</td>
+      <td class="auto-cell o-m2top" id="m2top-${i}">—</td>
+      <td><input type="text" placeholder="açıklama" class="o-acik" style="text-align:left" data-row="${i}"></td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+function olcuHesapla(){
+  let totAdet = 0, totM2 = 0;
+  for(let i=1;i<=25;i++){
+    const genRaw = document.querySelector(`.o-gen[data-row="${i}"]`)?.value;
+    const yukRaw = document.querySelector(`.o-yuk[data-row="${i}"]`)?.value;
+    const adetRaw = document.querySelector(`.o-adet[data-row="${i}"]`)?.value;
+    const gen = (genRaw && !isNaN(parseFloat(genRaw))) ? parseFloat(genRaw) : 0;
+    const yuk = (yukRaw && !isNaN(parseFloat(yukRaw))) ? parseFloat(yukRaw) : 0;
+    const adet = (adetRaw && !isNaN(parseFloat(adetRaw))) ? parseFloat(adetRaw) : 1;
+    const m2tek = (gen&&yuk) ? gen*yuk/10000 : 0;
+    const m2top = m2tek * adet;
+    document.getElementById(`m2tek-${i}`).textContent = m2tek>0 ? m2tek.toFixed(2) : '—';
+    document.getElementById(`m2top-${i}`).textContent = m2top>0 ? m2top.toFixed(2) : '—';
+    totAdet += (gen&&yuk) ? adet : 0;
+    totM2 += m2top;
+  }
+  document.getElementById('tot-adet').textContent = totAdet;
+  document.getElementById('tot-m2').textContent = totM2.toFixed(2);
+  hesapla();
+}
+
+function getTotals(){
+  let totAdet = 0, totM2 = 0;
+  for(let i=1;i<=25;i++){
+    const genRaw = document.querySelector(`.o-gen[data-row="${i}"]`)?.value;
+    const yukRaw = document.querySelector(`.o-yuk[data-row="${i}"]`)?.value;
+    const adetRaw = document.querySelector(`.o-adet[data-row="${i}"]`)?.value;
+    const gen = (genRaw && !isNaN(parseFloat(genRaw))) ? parseFloat(genRaw) : 0;
+    const yuk = (yukRaw && !isNaN(parseFloat(yukRaw))) ? parseFloat(yukRaw) : 0;
+    const adet = (adetRaw && !isNaN(parseFloat(adetRaw))) ? parseFloat(adetRaw) : 1;
+    if(gen&&yuk){ totAdet+=adet; totM2+=(gen*yuk/10000)*adet; }
+  }
+  return {totAdet, totM2};
+}
+
+// ══════════════════════════════════════════════
+// HESAPLAMA
+// ══════════════════════════════════════════════
+function malzemeToplam(){
+  return state.malzemeler.filter(m=>!m.plint).reduce((s,m)=>s+(m.fiyat*m.kullanim),0);
+}
+
+function plintBirimFiyat(){
+  const p = state.malzemeler.find(m=>m.plint);
+  return p ? p.fiyat : 3.20;
+}
+
+function getNum(id, fallback=0){
+  const el = document.getElementById(id);
+  if(!el) return fallback;
+  const v = parseFloat(el.value);
+  return isNaN(v) ? fallback : v;
+}
+
+function hesapla(){
+  const {totAdet, totM2} = getTotals();
+  const birimFiyat = getNum('h-birim-fiyat',500);
+  const fiyat    = birimFiyat * totAdet;
+  const gosterEl = document.getElementById('h-fiyat-goster');
+  if(gosterEl) gosterEl.value = totAdet > 0 ? '€' + fiyat.toFixed(2) + '  (' + totAdet + ' × €' + birimFiyat + ')' : '—';
+  const km       = getNum('h-km',50);
+  const ekip     = getNum('h-ekip',4);
+  const saatUcr  = getNum('h-saat-ucret',22.5);
+  const plintM   = getNum('h-plint',0);
+  const kira     = getNum('h-kira',0);
+  const ekstra   = getNum('h-ekstra',0);
+
+  const ortM2  = totAdet>0 ? totM2/totAdet : 0;
+  const girilmisSaat = getNum('h-saat', 0);
+  const tahminiSure  = totAdet * (ortM2<1.5 ? 1.0 : ortM2<3.0 ? 1.5 : 2.5);
+  const sure   = girilmisSaat > 0 ? girilmisSaat : tahminiSure;
+  const iscil  = sure * ekip * saatUcr;
+  // Gün bilgisi güncelle
+  const basTarih = document.getElementById('h-tarih-bas')?.value;
+  const bitTarih = document.getElementById('h-tarih-bit')?.value;
+  const gunInfoEl = document.getElementById('h-gun-info');
+  if(gunInfoEl){
+    if(basTarih && bitTarih){
+      const gun = Math.ceil((new Date(bitTarih)-new Date(basTarih))/(1000*60*60*24))+1;
+      gunInfoEl.textContent = gun + ' gün' + (girilmisSaat>0 ? ' · ' + sure + ' saat girildi' : ' · Tahmini: ' + tahminiSure.toFixed(1) + ' saat');
+    } else if(girilmisSaat>0){
+      gunInfoEl.textContent = sure + ' saat · ' + (sure/ekip).toFixed(1) + ' saat/kişi';
+    } else {
+      gunInfoEl.textContent = 'Tahmini: ' + tahminiSure.toFixed(1) + ' saat (pencere bazlı)';
+    }
+  }
+  const seyahat= km * 2 * state.varsayimlar.kmFiyat + state.varsayimlar.tolOrt;
+  const malz   = malzemeToplam() * totAdet;
+  const plint  = plintM * plintBirimFiyat();
+  const _v = state.varsayimlar;
+  const genelAylik = (_v.sigortaAylik||0)+(_v.aracLeaseAylik||0)+(_v.aracBakimAylik||0)+(_v.aracYikama||0)+(_v.telefonAylik||0)+(_v.idariDiger||0);
+  const genel = genelAylik / Math.max(_v.aylikProje||1,1);
+  const topMal = iscil + seyahat + malz + plint + kira + ekstra + genel;
+  const kar    = fiyat - topMal;
+  const oran   = fiyat>0 ? kar/fiyat : 0;
+
+  const fmt = v=>'€'+v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  const pct = v=>(v*100).toFixed(1)+'%';
+
+  document.getElementById('r-iscil').textContent = fmt(iscil);
+  const detayEl = document.getElementById('r-iscil-detay');
+  if(detayEl) detayEl.textContent = sure>0 ? sure.toFixed(1)+'sa × '+ekip+'kişi × €'+saatUcr : '';
+  document.getElementById('r-seyahat').textContent = fmt(seyahat);
+  document.getElementById('r-malzeme').textContent = fmt(malz);
+  document.getElementById('r-plint').textContent = fmt(plint);
+  document.getElementById('r-kira').textContent = fmt(kira);
+  document.getElementById('r-ekstra').textContent = fmt(ekstra);
+  document.getElementById('r-genel').textContent = fmt(genel);
+  document.getElementById('r-top-maliyet').textContent = fmt(topMal);
+  document.getElementById('r-fiyat').textContent = fmt(fiyat);
+  const karEl = document.getElementById('r-kar');
+  karEl.textContent = fmt(kar);
+  karEl.style.color = kar>=0 ? 'var(--green)' : 'var(--red)';
+  const oranEl = document.getElementById('r-oran');
+  oranEl.textContent = pct(oran);
+  oranEl.style.color = oran>=0.25 ? 'var(--green)' : oran>=0.10 ? 'var(--warn)' : 'var(--red)';
+  document.getElementById('r-m2kar').textContent = totM2>0 ? fmt(kar/totM2) : '—';
+  document.getElementById('r-pkar').textContent = totAdet>0 ? fmt(kar/totAdet) : '—';
+
+  // Malzeme dökümü
+  const det = document.getElementById('r-malzeme-detay');
+  if(totAdet>0){
+    det.innerHTML = state.malzemeler.filter(m=>!m.plint).map(m=>`
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+        <span>${m.ad} <span style="color:var(--text3)">(${m.kullanim} ${m.birim}/pencere × ${totAdet})</span></span>
+        <span style="font-family:var(--mono);color:var(--accent2)">${fmt(m.fiyat*m.kullanim*totAdet)}</span>
+      </div>
+    `).join('');
+    if(plintM>0) det.innerHTML += `
+      <div style="display:flex;justify-content:space-between;padding:6px 0">
+        <span>Plint/Afwerking (${plintM}m)</span>
+        <span style="font-family:var(--mono);color:var(--accent2)">${fmt(plint)}</span>
+      </div>`;
+  } else {
+    det.innerHTML = '<span style="color:var(--text3)">Pencere ölçüleri girildiğinde hesaplanır.</span>';
+  }
+}
+
+// ══════════════════════════════════════════════
+// KAYDET
+// ══════════════════════════════════════════════
+function kaydet(){
+  const projeNo = document.getElementById('h-proje-no').value.trim();
+  const musteri = document.getElementById('h-musteri').value.trim();
+  const sehir   = document.getElementById('h-sehir').value.trim();
+  const tarih    = document.getElementById('h-tarih-bas').value;
+  const tarihBas = document.getElementById('h-tarih-bas').value;
+  const tarihBit = document.getElementById('h-tarih-bit').value;
+  const girilenSaat = getNum('h-saat', 0);
+  const birimFiyat = getNum('h-birim-fiyat',500);
+  const fiyat   = birimFiyat * totAdet;
+
+  if(!projeNo||!musteri||!fiyat){ toast('Proje No, Müşteri ve Fiyat zorunludur!','error'); return; }
+
+  const {totAdet, totM2} = getTotals();
+  const km      = getNum('h-km',50);
+  const ekip    = getNum('h-ekip',4);
+  const saatUcr = getNum('h-saat-ucret',22.5);
+  const plintM  = getNum('h-plint',0);
+  const kira    = getNum('h-kira',0);
+  const ekstra  = getNum('h-ekstra',0);
+
+  const ortM2  = totAdet>0 ? totM2/totAdet : 0;
+  const tahSure = totAdet * (ortM2<1.5?1.0:ortM2<3.0?1.5:2.5);
+  const sure   = girilenSaat > 0 ? girilenSaat : tahSure;
+  const iscil  = sure * ekip * saatUcr;
+  const seyahat= km*2*state.varsayimlar.kmFiyat + state.varsayimlar.tolOrt;
+  const malz   = malzemeToplam()*totAdet;
+  const plint  = plintM * plintBirimFiyat();
+  const _v = state.varsayimlar;
+  const genelAylik = (_v.sigortaAylik||0)+(_v.aracLeaseAylik||0)+(_v.aracBakimAylik||0)+(_v.aracYikama||0)+(_v.telefonAylik||0)+(_v.idariDiger||0);
+  const genel = genelAylik / Math.max(_v.aylikProje||1,1);
+  const topMal = iscil + seyahat + malz + plint + kira + ekstra + genel;
+  const kar    = fiyat - topMal;
+
+  const pencereler = [];
+  for(let i=1;i<=25;i++){
+    const gen = parseFloat(document.querySelector(`.o-gen[data-row="${i}"]`)?.value)||0;
+    const yuk = parseFloat(document.querySelector(`.o-yuk[data-row="${i}"]`)?.value)||0;
+    const adet= parseFloat(document.querySelector(`.o-adet[data-row="${i}"]`)?.value)||1;
+    const acik= document.querySelector(`.o-acik[data-row="${i}"]`)?.value||'';
+    if(gen&&yuk) pencereler.push({gen,yuk,adet,acik});
+  }
+
+  state.projeler.unshift({
+    id: state.nextProjeId++,
+    projeNo, musteri, sehir, tarih, fiyat,
+    km, ekip, saatUcr, plintM, kira, ekstra,
+    iscil, seyahat, malz, plint, genel,
+    topMal, kar, totAdet, totM2, pencereler,
+    kayitTarih: new Date().toISOString(),
+  });
+  saveState();
+  toast('Proje kaydedildi! ✓','success');
+  updateHeader();
+  renderDashboard();
+  sifirla();
+}
+
+function sifirla(){
+  ['h-proje-no','h-musteri','h-sehir','h-tarih-bas','h-tarih-bit','h-saat','h-plint','h-kira','h-ekstra'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  document.querySelectorAll('.o-gen,.o-yuk,.o-acik').forEach(el=>el.value='');
+  document.querySelectorAll('.o-adet').forEach(el=>el.value='1');
+  document.querySelectorAll('.o-m2tek,.o-m2top').forEach(el=>el.textContent='—');
+  document.getElementById('tot-adet').textContent='0';
+  document.getElementById('tot-m2').textContent='0.00';
+  hesapla();
+}
+
+// ══════════════════════════════════════════════
+// PROJELER
+// ══════════════════════════════════════════════
+function renderProjeler(){
+  const tbody = document.getElementById('proje-tbody');
+  if(!state.projeler.length){
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Henüz proje kaydedilmedi</div></div></td></tr>';
+    return;
+  }
+  const fmt = v=>'€'+v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  tbody.innerHTML = state.projeler.map(p=>{
+    const oran = p.fiyat>0 ? p.kar/p.fiyat : 0;
+    const badge = oran>=0.25 ? 'badge-green' : oran>=0.10 ? 'badge-yellow' : 'badge-red';
+    return `<tr style="cursor:pointer" onclick="showDetay(${p.id})">
+      <td style="font-weight:700">${p.projeNo}</td>
+      <td>${p.musteri}</td>
+      <td>${p.sehir||'—'}</td>
+      <td style="font-family:var(--mono);font-size:.8rem">${p.tarih||'—'}</td>
+      <td class="tbl-num">${p.sure?p.sure.toFixed(0)+'sa':'—'}</td><td class="tbl-num">${p.totAdet}</td>
+      <td class="tbl-num">${p.totM2.toFixed(1)}</td>
+      <td class="tbl-num">${fmt(p.fiyat)}</td>
+      <td class="tbl-num" style="color:${p.kar>=0?'var(--green)':'var(--red)'}">${fmt(p.kar)}</td>
+      <td class="tbl-num"><span class="badge ${badge}">${(oran*100).toFixed(1)}%</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showDetay(${p.id})">↗</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function showDetay(id){
+  const p = state.projeler.find(x=>x.id===id);
+  if(!p) return;
+  const fmt = v=>'€'+v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  const oran = p.fiyat>0 ? p.kar/p.fiyat : 0;
+  document.getElementById('detay-title').textContent = `${p.projeNo} – ${p.musteri}`;
+  document.getElementById('detay-content').innerHTML = `
+    <div class="grid-2" style="gap:12px;margin-bottom:16px">
+      <div><span style="color:var(--text2);font-size:.75rem">Şehir</span><div style="font-weight:600">${p.sehir||'—'}</div></div>
+      <div><span style="color:var(--text2);font-size:.75rem">Başlangıç</span><div style="font-family:var(--mono)">${p.tarihBas||p.tarih||'—'}</div></div>
+      <div><span style="color:var(--text2);font-size:.75rem">Bitiş</span><div style="font-family:var(--mono)">${p.tarihBit||'—'}</div></div>
+      <div><span style="color:var(--text2);font-size:.75rem">Çalışma Süresi</span><div style="font-family:var(--mono)">${p.sure?p.sure.toFixed(1)+' saat':'—'}</div></div>
+      <div><span style="color:var(--text2);font-size:.75rem">Ekip / Ücret</span><div style="font-family:var(--mono)">${p.ekip||'—'} kişi · €${p.saatUcr||'—'}/sa</div></div>
+      <div><span style="color:var(--text2);font-size:.75rem">Pencere Adedi</span><div style="font-family:var(--mono)">${p.totAdet}</div></div>
+      <div><span style="color:var(--text2);font-size:.75rem">Toplam m²</span><div style="font-family:var(--mono)">${p.totM2.toFixed(2)}</div></div>
+    </div>
+    <hr class="sep">
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
+      ${[['Sabit Fiyat (toplam)',p.fiyat],['Pencere Başı Fiyat','birim' in p ? p.birimFiyat : (p.totAdet>0 ? p.fiyat/p.totAdet : 0)],['İşçilik',p.iscil],['Seyahat',p.seyahat],['Malzeme',p.malz],['Plint/Afwerking',p.plint],['Kiralık',p.kira],['Ekstra',p.ekstra],['Genel Gider',p.genel]].map(([l,v])=>`
+        <div style="display:flex;justify-content:space-between">
+          <span style="color:var(--text2);font-size:.82rem">${l}</span>
+          <span style="font-family:var(--mono);font-size:.85rem">${fmt(v||0)}</span>
+        </div>`).join('')}
+    </div>
+    <hr class="sep">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:700;font-size:1.1rem">NET KAR</span>
+      <span style="font-family:var(--mono);font-size:1.4rem;font-weight:800;color:${p.kar>=0?'var(--green)':'var(--red)'}">${fmt(p.kar)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:8px">
+      <span style="color:var(--text2);font-size:.82rem">Kar Oranı</span>
+      <span style="font-family:var(--mono);color:${oran>=0.25?'var(--green)':oran>=0.1?'var(--warn)':'var(--red)'}">${(oran*100).toFixed(1)}%</span>
+    </div>
+    ${p.pencereler&&p.pencereler.length?`
+    <hr class="sep">
+    <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:8px">Pencere Ölçüleri</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      ${p.pencereler.map((pn,i)=>`<span style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-family:var(--mono);font-size:.75rem">${i+1}. ${pn.gen}×${pn.yuk}cm ×${pn.adet} = ${((pn.gen*pn.yuk/10000)*pn.adet).toFixed(2)}m²${pn.acik?' ('+pn.acik+')':''}</span>`).join('')}
+    </div>`:''}
+  `;
+  document.getElementById('detay-sil-btn').onclick = ()=>{ silProje(id); closeModal('detay-modal'); };
+  document.getElementById('detay-modal').classList.add('open');
+}
+
+function silProje(id){
+  state.projeler = state.projeler.filter(p=>p.id!==id);
+  saveState(); updateHeader(); renderProjeler(); renderDashboard();
+  toast('Proje silindi','error');
+}
+
+// ══════════════════════════════════════════════
+// MALZEME
+// ══════════════════════════════════════════════
+function renderMalzeme(){
+  const list = document.getElementById('malzeme-list');
+  const fmt = v=>'€'+v.toFixed(2);
+  list.innerHTML = state.malzemeler.map(m=>`
+    <div class="malzeme-row" style="border-bottom:1px solid rgba(42,48,69,.4);padding:10px 0">
+      <div>
+        <input type="text" value="${m.ad}" style="background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-family:var(--sans);font-size:.88rem;width:100%"
+          onchange="updateMalzeme(${m.id},'ad',this.value)">
+        ${m.plint?'<span style="font-size:.65rem;color:var(--warn);margin-top:3px;display:block">Metraj bazlı hesaplanır</span>':''}
+      </div>
+      <div>
+        <div style="font-size:.6rem;color:var(--text3);margin-bottom:2px">BİRİM</div>
+        <input type="text" value="${m.birim}" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-family:var(--mono);font-size:.82rem;width:100%"
+          onchange="updateMalzeme(${m.id},'birim',this.value)">
+      </div>
+      <div>
+        <div style="font-size:.6rem;color:var(--text3);margin-bottom:2px">BİRİM FİYAT (€)</div>
+        <input type="number" value="${m.fiyat}" step="0.01" style="background:var(--surface2);border:1px solid rgba(79,142,255,.3);border-radius:6px;padding:6px 10px;color:var(--accent);font-family:var(--mono);font-size:16px;width:100%;text-align:right"
+          onchange="updateMalzeme(${m.id},'fiyat',parseFloat(this.value)||0)" onblur="updateMalzeme(${m.id},'fiyat',parseFloat(this.value)||0)" inputmode="decimal">
+      </div>
+      <div>
+        <div style="font-size:.6rem;color:var(--text3);margin-bottom:2px">PENCERE BAŞI KULLANIM</div>
+        <input type="number" value="${m.kullanim}" step="0.01" style="background:var(--surface2);border:1px solid rgba(79,142,255,.3);border-radius:6px;padding:6px 10px;color:var(--accent);font-family:var(--mono);font-size:16px;width:100%;text-align:right"
+          onchange="updateMalzeme(${m.id},'kullanim',parseFloat(this.value)||0)" onblur="updateMalzeme(${m.id},'kullanim',parseFloat(this.value)||0)" inputmode="decimal">
+      </div>
+      <span class="malzeme-calc">${fmt(m.fiyat*m.kullanim)}</span>
+      <button class="btn btn-danger btn-sm" onclick="malzemeSil(${m.id})">✕</button>
+    </div>
+  `).join('');
+  const top = state.malzemeler.filter(m=>!m.plint).reduce((s,m)=>s+(m.fiyat*m.kullanim),0);
+  document.getElementById('malzeme-toplam').textContent = '€'+top.toFixed(2);
+}
+
+function updateMalzeme(id, key, val){
+  const m = state.malzemeler.find(x=>x.id===id);
+  if(m){ m[key]=val; saveState(); renderMalzeme(); }
+}
+
+function malzemeEkle(){
+  const maxId = state.malzemeler.reduce((m,x)=>Math.max(m,x.id),0);
+  state.malzemeler.push({id:maxId+1,ad:'Yeni Malzeme',birim:'adet',fiyat:0,kullanim:1});
+  saveState(); renderMalzeme();
+  toast('Malzeme eklendi','success');
+}
+
+function malzemeSil(id){
+  state.malzemeler = state.malzemeler.filter(m=>m.id!==id);
+  saveState(); renderMalzeme();
+  toast('Malzeme silindi','error');
+}
+
+// ══════════════════════════════════════════════
+// AYLIK ÖZET
+// ══════════════════════════════════════════════
+const AYLAR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+function renderAylik(){
+  const yil = new Date().getFullYear();
+  const aylik = Array.from({length:12},(_,i)=>({ay:i,projeler:[],ciro:0,maliyet:0,kar:0,m2:0}));
+  state.projeler.forEach(p=>{
+    if(!p.tarih) return;
+    const d = new Date(p.tarih);
+    if(d.getFullYear()!==yil) return;
+    const m = aylik[d.getMonth()];
+    m.projeler.push(p); m.ciro+=p.fiyat; m.maliyet+=p.topMal; m.kar+=p.kar; m.m2+=p.totM2;
+  });
+
+  const fmt0 = v=>'€'+Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  const pct = v=>v?((v)*100).toFixed(1)+'%':'—';
+
+  document.getElementById('aylik-tbody').innerHTML = aylik.map(a=>{
+    const oran = a.ciro>0 ? a.kar/a.ciro : 0;
+    const badge = a.projeler.length===0 ? '' : oran>=0.25?'badge-green':oran>=0.1?'badge-yellow':'badge-red';
+    return `<tr>
+      <td style="font-weight:600">${AYLAR[a.ay]}</td>
+      <td class="tbl-num">${a.projeler.length||'—'}</td>
+      <td class="tbl-num">${a.ciro?fmt0(a.ciro):'—'}</td>
+      <td class="tbl-num">${a.maliyet?fmt0(a.maliyet):'—'}</td>
+      <td class="tbl-num" style="color:${a.kar>=0?'var(--green)':'var(--red)'}">${a.kar?fmt0(a.kar):'—'}</td>
+      <td class="tbl-num">${a.projeler.length?`<span class="badge ${badge}">${pct(oran)}</span>`:'—'}</td>
+      <td class="tbl-num">${a.m2?a.m2.toFixed(1):'—'}</td>
+      <td class="tbl-num">${a.m2&&a.kar?(fmt0(a.kar/a.m2)+'/m²'):'—'}</td>
+    </tr>`;
+  }).join('');
+
+  const yCiro = aylik.reduce((s,a)=>s+a.ciro,0);
+  const yKar  = aylik.reduce((s,a)=>s+a.kar,0);
+  const yProj = aylik.reduce((s,a)=>s+a.projeler.length,0);
+  const yOran = yCiro>0 ? yKar/yCiro : 0;
+  const fmt = v=>'€'+v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  document.getElementById('ay-proje').textContent = yProj;
+  document.getElementById('ay-ciro').textContent = fmt(yCiro);
+  document.getElementById('ay-kar').textContent = fmt(yKar);
+  document.getElementById('ay-kar').style.color = yKar>=0?'var(--green)':'var(--red)';
+  document.getElementById('ay-oran').textContent = (yOran*100).toFixed(1)+'%';
+  document.getElementById('ay-oran').style.color = yOran>=0.25?'var(--green)':yOran>=0.10?'var(--warn)':'var(--red)';
+}
+
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard(){
+  const ps = state.projeler;
+  const ciro = ps.reduce((s,p)=>s+p.fiyat,0);
+  const kar  = ps.reduce((s,p)=>s+p.kar,0);
+  const m2   = ps.reduce((s,p)=>s+p.totM2,0);
+  const adet = ps.reduce((s,p)=>s+p.totAdet,0);
+  const oran = ciro>0?kar/ciro:0;
+  const fmt  = v=>'€'+Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');
+
+  document.getElementById('d-proje').textContent = ps.length;
+  document.getElementById('d-ciro').textContent = fmt(ciro);
+  document.getElementById('d-kar').textContent = fmt(kar);
+  document.getElementById('d-kar').style.color = kar>=0?'var(--green)':'var(--red)';
+  document.getElementById('d-oran').textContent = (oran*100).toFixed(1)+'%';
+  document.getElementById('d-m2').textContent = m2.toFixed(0)+' m²';
+  document.getElementById('d-karm2').textContent = m2>0?fmt(kar/m2)+'/m²':'—';
+  document.getElementById('d-karpencere').textContent = adet>0?fmt(kar/adet)+'/pnc':'—';
+
+  // Son projeler
+  const sonEl = document.getElementById('d-son-projeler');
+  if(!ps.length){ sonEl.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Henüz proje yok</div></div>'; }
+  else {
+    sonEl.innerHTML = ps.slice(0,5).map(p=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(42,48,69,.4)">
+        <div>
+          <div style="font-weight:600;font-size:.9rem">${p.projeNo} – ${p.musteri}</div>
+          <div style="font-size:.75rem;color:var(--text2)">${p.sehir||''} ${p.tarih?'• '+p.tarih:''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--mono);font-size:.9rem;color:${p.kar>=0?'var(--green)':'var(--red)'}">€${p.kar.toFixed(0)}</div>
+          <div style="font-size:.72rem;color:var(--text3)">${p.fiyat>0?((p.kar/p.fiyat)*100).toFixed(1)+'%':''}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Trend
+  const yil = new Date().getFullYear();
+  const aylik = Array.from({length:12},(_,i)=>({ay:i,kar:0}));
+  ps.forEach(p=>{ if(p.tarih){ const d=new Date(p.tarih); if(d.getFullYear()===yil) aylik[d.getMonth()].kar+=p.kar; } });
+  const maxKar = Math.max(...aylik.map(a=>Math.abs(a.kar)),1);
+  document.getElementById('d-trend').innerHTML = aylik.map(a=>`
+    <div class="month-bar-row">
+      <span class="month-name">${AYLAR[a.ay].slice(0,3)}</span>
+      <div class="month-bar-bg"><div class="month-bar-fill" style="width:${Math.abs(a.kar)/maxKar*100}%;background:${a.kar>=0?'linear-gradient(90deg,var(--accent),var(--accent2))':'var(--red)'}"></div></div>
+      <span class="month-val" style="color:${a.kar>=0?'var(--green)':'var(--red)'}">${a.kar?'€'+Math.round(a.kar):''}</span>
+    </div>`).join('');
+}
+
+function updateHeader(){
+  const ps = state.projeler;
+  const ciro = ps.reduce((s,p)=>s+p.fiyat,0);
+  const kar  = ps.reduce((s,p)=>s+p.kar,0);
+  const oran = ciro>0?kar/ciro:0;
+  const fmt  = v=>'€'+Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  document.getElementById('h-proje').textContent = ps.length;
+  document.getElementById('h-ciro').textContent = fmt(ciro);
+  const karEl = document.getElementById('h-kar');
+  karEl.textContent = fmt(kar);
+  karEl.className = 'hstat-val '+(kar>=0?'pos':'neg');
+  document.getElementById('h-oran').textContent = (oran*100).toFixed(1)+'%';
+  document.getElementById('h-oran').className = 'hstat-val '+(oran>=0.25?'pos':oran>=0.1?'':'neg');
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function closeModal(id){ document.getElementById(id).classList.remove('open') }
+
+function toast(msg, type='success'){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = `toast ${type} show`;
+  setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+window.onclick = e => {
+  if(e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
+}
+
+
+// ══════════════════════════════════════════════
+// AYARLAR
+// ══════════════════════════════════════════════
+function saveAyar(key, val){
+  const v = parseFloat(val);
+  if(!isNaN(v)){ state.varsayimlar[key] = v; saveState(); }
+  updateAyarOzet();
+}
+
+function renderAyarlar(){
+  const v = state.varsayimlar;
+  const fields = {
+    'ay-kmFiyat':        v.kmFiyat,
+    'ay-tolOrt':         v.tolOrt,
+    'ay-sigortaAylik':   v.sigortaAylik,
+    'ay-aracLeaseAylik': v.aracLeaseAylik,
+    'ay-aracBakimAylik': v.aracBakimAylik,
+    'ay-aracYikama':     v.aracYikama,
+    'ay-telefonAylik':   v.telefonAylik,
+    'ay-idariDiger':     v.idariDiger,
+    'ay-aylikProje':     v.aylikProje,
+  };
+  Object.entries(fields).forEach(([id,val])=>{
+    const el = document.getElementById(id);
+    if(el && (el.value==='' || document.activeElement!==el)) el.value = val;
+  });
+  updateAyarOzet();
+}
+
+function updateAyarOzet(){
+  const v = state.varsayimlar;
+  const items = [
+    ['Sigorta',          v.sigortaAylik||0],
+    ['Araç Lease/Kira',  v.aracLeaseAylik||0],
+    ['Araç Bakım',       v.aracBakimAylik||0],
+    ['Araç Yıkama',      v.aracYikama||0],
+    ['Telefon & İnternet',v.telefonAylik||0],
+    ['Diğer İdari',      v.idariDiger||0],
+  ];
+  const toplam = items.reduce((s,[,v])=>s+v,0);
+  const projeBasi = toplam / Math.max(v.aylikProje||1,1);
+  const fmt = v=>'€'+v.toFixed(0);
+  const ozetEl = document.getElementById('ayar-ozet');
+  if(ozetEl){
+    ozetEl.innerHTML = items.filter(([,v])=>v>0).map(([l,v])=>`
+      <div style="display:flex;justify-content:space-between">
+        <span style="color:var(--text2)">${l}</span>
+        <span style="font-family:var(--mono)">${fmt(v)}/ay</span>
+      </div>`).join('') || '<span style="color:var(--text3)">Henüz gider girilmedi</span>';
+  }
+  const topEl = document.getElementById('ayar-toplam');
+  const pbEl  = document.getElementById('ayar-proje-basi');
+  if(topEl) topEl.textContent = fmt(toplam)+'/ay';
+  if(pbEl)  pbEl.textContent  = fmt(projeBasi)+'/proje';
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+loadState();
+document.getElementById('h-tarih-bas').value = new Date().toISOString().slice(0,10);
+initOlcuTable();
+hesapla();
+updateHeader();
+renderDashboard();
+</script>
+
+<script>
+// Service Worker kayıt
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(r => console.log('SW kayıt:', r.scope))
+      .catch(e => console.log('SW hata:', e));
+  });
+}
+
+// Android PWA kurulum prompt
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+  deferredPrompt = null;
+});
+function installApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      if(r.outcome === 'accepted') document.getElementById('install-banner').style.display = 'none';
+      deferredPrompt = null;
+    });
+  }
+}
+function closeBanner(){
+  document.getElementById('install-banner').style.display = 'none';
+}
+</script>
+
+<!-- Android kurulum banner -->
+<div id="install-banner" style="
+  display:none;position:fixed;bottom:72px;left:12px;right:12px;z-index:500;
+  background:linear-gradient(135deg,#1e2d50,#1a3040);
+  border:1px solid #4f8eff;border-radius:14px;
+  padding:14px 16px;
+  flex-direction:row;align-items:center;gap:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+">
+  <div style="font-size:2rem">🪟</div>
+  <div style="flex:1">
+    <div style="font-family:Syne,sans-serif;font-weight:700;font-size:.9rem;color:#e8ecf4">MontajPro'yu Kur</div>
+    <div style="font-size:.72rem;color:#8892aa;margin-top:2px">Ana ekrana ekle, uygulama gibi kullan</div>
+  </div>
+  <button onclick="installApp()" style="
+    background:#4f8eff;color:#fff;border:none;border-radius:8px;
+    padding:8px 14px;font-family:Syne,sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;
+    white-space:nowrap;
+  ">Kur</button>
+  <button onclick="closeBanner()" style="
+    background:none;border:none;color:#8892aa;cursor:pointer;font-size:1.1rem;padding:4px;
+  ">✕</button>
+</div>
+
+</body>
+</html>
